@@ -31,5 +31,8 @@ module PaymentsDdd
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    config.paths.add 'command/lib', eager_load: true
+    config.paths.add 'payments/lib', eager_load: true
   end
 end
