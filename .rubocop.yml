@@ -1,0 +1,48 @@
+AllCops:
+  Exclude:
+    - bin/**/*
+    - db/schema.rb
+    - db/migrate/*
+    - vendor/bundle/**/*
+    - vendor/cache/**/*
+
+  TargetRubyVersion: 2.5
+
+Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+FrozenStringLiteralComment:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Style/IndentHash:
+  Enabled: false
+
+Style/RaiseArgs:
+  Enabled: false
+
+Style/SymbolProc:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Enabled: false
