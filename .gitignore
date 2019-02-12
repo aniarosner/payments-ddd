@@ -17,3 +17,7 @@ config/environments/*.local.yml
 
 # Ignore osx files
 .DS_Store
+
+# Ignora local envs
+.env.development
+.env.test
