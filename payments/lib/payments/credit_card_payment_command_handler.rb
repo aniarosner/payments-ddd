@@ -26,6 +26,14 @@ module Payments
       end
     end
 
+    def capture_authorization(cmd)
+      ActiveRecord::Base.transaction do
+        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
+          credit_card_payment.capture_authorization
+        end
+      end
+    end
+
     private
 
     def with_credit_card_payment(payment_id)

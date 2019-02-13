@@ -44,12 +44,28 @@ module Payments
       }))
     end
 
+    def capture_authorization
+      raise Payments::InvalidOperation unless can_capture?
+
+      apply(AuthorizationCaptured.new(data: {
+        payment_id: @payment_id
+      }))
+    rescue Payments::InvalidOperation # SomePaymentGatewayError
+      apply(AuthorizationCaptureFailed.new(data: {
+        payment_id: @payment_id
+      }))
+    end
+
     def can_assign?
       @state.in?(%i[initialized])
     end
 
     def can_authorize?
       @state.in?(%i[assigned_to_order failed_authorization])
+    end
+
+    def can_capture?
+      @state.in?(%i[authorized failed_capture])
     end
 
     on Payments::PaymentAssignedToOrder do |event|
@@ -68,6 +84,14 @@ module Payments
 
     on Payments::PaymentAuthorizationFailed do |_event|
       @state = :failed_authorization
+    end
+
+    on Payments::AuthorizationCaptured do |_event|
+      @state = :captured
+    end
+
+    on Payments::AuthorizationCaptureFailed do |_event|
+      @state = :failed_capture
     end
   end
 end
