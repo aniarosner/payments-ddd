@@ -2,7 +2,7 @@ module Payments
   class AuthorizeCreditCard
     include Command
 
-    attr_accessor :transaction_id,
+    attr_accessor :payment_id,
                   :credit_card_token,
                   :amount,
                   :currency
