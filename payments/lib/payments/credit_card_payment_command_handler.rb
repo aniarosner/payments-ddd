@@ -4,6 +4,16 @@ module Payments
       @event_store = Rails.configuration.event_store
     end
 
+    def assign_payment_to_order(cmd)
+      ActiveRecord::Base.transaction do
+        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
+          credit_card_payment.assign_to_order(
+            payment_id: payment_id, order_id: order_id
+          )
+        end
+      end
+    end
+
     def authorize_credit_card(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
