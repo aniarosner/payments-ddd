@@ -7,7 +7,11 @@ module Payments
     def authorize_credit_card(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          credit_card_payment.authorize_credit_card
+          amount      = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
+          credit_card = Payments::CreditCard.new(token: cmd.credit_card_token)
+          credit_card_payment.authorize_credit_card(
+            payment_id: payment_id, credit_card: credit_card, amount: amount
+          )
         end
       end
     end

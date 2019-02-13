@@ -1,5 +1,5 @@
 module Payments
-  class MoneyAmount
+  class Amount
     include Comparable
 
     def initialize(value, currency)
