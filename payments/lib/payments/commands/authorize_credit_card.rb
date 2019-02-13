@@ -2,7 +2,16 @@ module Payments
   class AuthorizeCreditCard
     include Command
 
-    def initialize
+    attr_accessor :transaction_id,
+                  :credit_card_token,
+                  :amount,
+                  :currency
+
+    def initialize(payment_id:, credit_card_token:, amount:, currency:)
+      @payment_id         = payment_id
+      @credit_card_token  = credit_card_token
+      @amount             = amount
+      @currency           = currency
     end
   end
 end
