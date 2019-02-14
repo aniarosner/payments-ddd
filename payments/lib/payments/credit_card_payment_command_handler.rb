@@ -42,6 +42,14 @@ module Payments
       end
     end
 
+    def refund(cmd)
+      ActiveRecord::Base.transaction do
+        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
+          credit_card_payment.refund
+        end
+      end
+    end
+
     private
 
     def with_credit_card_payment(payment_id)

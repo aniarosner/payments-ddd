@@ -44,6 +44,7 @@ module Payments
       }))
     end
 
+    # NOTE: capture whole amount
     def capture_authorization
       raise Payments::InvalidOperation unless can_capture?
 
@@ -68,6 +69,19 @@ module Payments
       }))
     end
 
+    # NOTE: refund whole amount
+    def refund
+      raise Payments::InvalidOperation unless can_refund?
+
+      apply(PaymentRefunded.new(data: {
+        payment_id: @payment_id
+      }))
+    rescue Payments::InvalidOperation # SomePaymentGatewayError
+      apply(PaymentRefundFailed.new(data: {
+        payment_id: @payment_id
+      }))
+    end
+
     def can_assign?
       @state.in?(%i[initialized])
     end
@@ -82,6 +96,10 @@ module Payments
 
     def can_release?
       @state.in?(%i[authorized failed_release])
+    end
+
+    def can_refund?
+      @state.in?(%i[captured failed_refund])
     end
 
     on Payments::PaymentAssignedToOrder do |event|
@@ -116,6 +134,14 @@ module Payments
 
     on Payments::AuthorizationReleaseFailed do |_event|
       @state = :failed_release
+    end
+
+    on Payments::PaymentRefunded do |_event|
+      @state = :refunded
+    end
+
+    on Payments::PaymentRefundFailed do |_event|
+      @state = :failed_refund
     end
   end
 end

@@ -1,6 +1,7 @@
 module Payments
-  class RefundSucceded < RailsEventStore::Event
+  class PaymentRefunded < RailsEventStore::Event
     SCHEMA = {
+      payment_id: String
     }.freeze
 
     def self.strict(data:)
