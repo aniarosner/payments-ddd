@@ -56,6 +56,18 @@ module Payments
       }))
     end
 
+    def release_authorization
+      raise Payments::InvalidOperation unless can_release?
+
+      apply(AuthorizationReleased.new(data: {
+        payment_id: @payment_id
+      }))
+    rescue Payments::InvalidOperation # SomePaymentGatewayError
+      apply(AuthorizationReleaseFailed.new(data: {
+        payment_id: @payment_id
+      }))
+    end
+
     def can_assign?
       @state.in?(%i[initialized])
     end
@@ -66,6 +78,10 @@ module Payments
 
     def can_capture?
       @state.in?(%i[authorized failed_capture])
+    end
+
+    def can_release?
+      @state.in?(%i[authorized failed_release])
     end
 
     on Payments::PaymentAssignedToOrder do |event|
@@ -92,6 +108,14 @@ module Payments
 
     on Payments::AuthorizationCaptureFailed do |_event|
       @state = :failed_capture
+    end
+
+    on Payments::AuthorizationReleased do |_event|
+      @state = :released
+    end
+
+    on Payments::AuthorizationReleaseFailed do |_event|
+      @state = :failed_release
     end
   end
 end

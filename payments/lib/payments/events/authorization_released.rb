@@ -1,6 +1,7 @@
 module Payments
-  class ReleaseFailed < RailsEventStore::Event
+  class AuthorizationReleased < RailsEventStore::Event
     SCHEMA = {
+      payment_id: String
     }.freeze
 
     def self.strict(data:)
