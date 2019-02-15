@@ -17,7 +17,7 @@ module Payments
     end
 
     def assign_to_order(order_reference:)
-      raise Payments::InvalidOperation unless @state.can_assign?
+      raise Payments::InvalidOperation unless @state.valid_for_assignment?
 
       apply(Payments::PaymentAssignedToOrder.new(data: {
         payment_id: @payment_id,
@@ -31,7 +31,7 @@ module Payments
     end
 
     def select_payment_gateway(payment_gateway:)
-      return unless can_select_payment_gateway?
+      return unless @state.valid_for_payment_gateway_setting?
 
       apply(Payments::PaymentGatewaySelected.new(data: {
         payment_id: @payment_id,
@@ -40,7 +40,7 @@ module Payments
     end
 
     def charge_credit_card(credit_card:, amount:)
-      raise Payments::InvalidOperation unless @state.can_charge?
+      raise Payments::InvalidOperation unless @state.valid_for_charge?
       raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
@@ -59,7 +59,7 @@ module Payments
     end
 
     def authorize_credit_card(credit_card:, amount:)
-      raise Payments::InvalidOperation unless @state.can_authorize?
+      raise Payments::InvalidOperation unless @state.valid_for_authorization?
       raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
@@ -79,7 +79,7 @@ module Payments
 
     # NOTE: capture whole amount
     def capture_authorization
-      raise Payments::InvalidOperation unless @state.can_capture?
+      raise Payments::InvalidOperation unless @state.valid_for_capture?
 
       @payment_gateway.capture(transaction_id: @transaction_id, amount: @authorized)
 
@@ -93,7 +93,7 @@ module Payments
     end
 
     def release_authorization
-      raise Payments::InvalidOperation unless @state.can_release?
+      raise Payments::InvalidOperation unless @state.valid_for_release?
 
       @payment_gateway.release(transaction_id: @transaction_id)
 
@@ -108,7 +108,7 @@ module Payments
 
     # NOTE: refund whole amount
     def refund
-      raise Payments::InvalidOperation unless @state.can_refund?
+      raise Payments::InvalidOperation unless @state.valid_for_refund?
 
       @payment_gateway.refund(transaction_id: @transaction_id, amount: @charged || @captured)
 
