@@ -35,13 +35,13 @@ module Payments
 
       apply(Payments::PaymentGatewaySelected.new(data: {
         payment_id: @payment_id,
-        payment_gateway: payment_gateway
+        payment_gateway: payment_gateway.to_sym
       }))
     end
 
     def charge_credit_card(credit_card:, amount:)
       raise Payments::InvalidOperation unless @state.valid_for_charge?
-      raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
+      raise Payments::PaymentGatewayNotSelected unless @payment_gateway.present?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
 
@@ -121,10 +121,6 @@ module Payments
       }))
     end
 
-    def payment_gateway_selected?
-      @payment_gateway.present?
-    end
-
     on Payments::PaymentAssignedToOrder do |event|
       @state            = Payments::Payment.new(:assigned_to_order)
       @order_reference  = OrderReference.new(event.data[:order_id])
@@ -134,7 +130,7 @@ module Payments
     end
 
     on Payments::PaymentGatewaySelected do |event|
-      @payment_gateway = event.data[:payment_gateway]
+      @payment_gateway = PaymentGateway.new(event.data[:payment_gateway])
     end
 
     on Payments::PaymentSucceded do |event|
