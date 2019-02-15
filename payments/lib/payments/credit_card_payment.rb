@@ -17,7 +17,7 @@ module Payments
     end
 
     def assign_to_order(order_reference:)
-      raise Payments::InvalidOperation unless can_assign?
+      raise Payments::InvalidOperation unless @state.can_assign?
 
       apply(Payments::PaymentAssignedToOrder.new(data: {
         payment_id: @payment_id,
@@ -40,7 +40,7 @@ module Payments
     end
 
     def charge_credit_card(credit_card:, amount:)
-      raise Payments::InvalidOperation unless can_charge?
+      raise Payments::InvalidOperation unless @state.can_charge?
       raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
@@ -59,7 +59,7 @@ module Payments
     end
 
     def authorize_credit_card(credit_card:, amount:)
-      raise Payments::InvalidOperation unless can_authorize?
+      raise Payments::InvalidOperation unless @state.can_authorize?
       raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
@@ -79,7 +79,7 @@ module Payments
 
     # NOTE: capture whole amount
     def capture_authorization
-      raise Payments::InvalidOperation unless can_capture?
+      raise Payments::InvalidOperation unless @state.can_capture?
 
       @payment_gateway.capture(transaction_id: @transaction_id, amount: @authorized)
 
@@ -93,7 +93,7 @@ module Payments
     end
 
     def release_authorization
-      raise Payments::InvalidOperation unless can_release?
+      raise Payments::InvalidOperation unless @state.can_release?
 
       @payment_gateway.release(transaction_id: @transaction_id)
 
@@ -108,7 +108,7 @@ module Payments
 
     # NOTE: refund whole amount
     def refund
-      raise Payments::InvalidOperation unless can_refund?
+      raise Payments::InvalidOperation unless @state.can_refund?
 
       @payment_gateway.refund(transaction_id: @transaction_id, amount: @charged || @captured)
 
@@ -119,34 +119,6 @@ module Payments
       apply(PaymentRefundFailed.new(data: {
         payment_id: @payment_id
       }))
-    end
-
-    def can_assign?
-      @state.in?(%i[initialized])
-    end
-
-    def can_select_payment_gateway?
-      @state.initialized? || @state.assigned_to_order? || @state.failed_charge? || @state.failed_authorization
-    end
-
-    def can_charge?
-      @state.assigned_to_order? || @state.failed_charge?
-    end
-
-    def can_authorize?
-      @state.assigned_to_order? || @state.failed_authorization?
-    end
-
-    def can_capture?
-      @state.authorized? || @state.failed_capture?
-    end
-
-    def can_release?
-      @state.authorized? || @state.failed_release?
-    end
-
-    def can_refund?
-      @state.captured? || @state.charged? || @state.failed_refund?
     end
 
     def payment_gateway_selected?

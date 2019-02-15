@@ -51,5 +51,33 @@ module Payments
     def failed_refund?
       state == :failed_refund
     end
+
+    def can_assign?
+      state.initialized?
+    end
+
+    def can_select_payment_gateway?
+      state.initialized? || state.assigned_to_order? || state.failed_charge? || state.failed_authorization
+    end
+
+    def can_charge?
+      state.assigned_to_order? || state.failed_charge?
+    end
+
+    def can_authorize?
+      state.assigned_to_order? || state.failed_authorization?
+    end
+
+    def can_capture?
+      state.authorized? || state.failed_capture?
+    end
+
+    def can_release?
+      state.authorized? || state.failed_release?
+    end
+
+    def can_refund?
+      state.captured? || state.charged? || state.failed_refund?
+    end
   end
 end
