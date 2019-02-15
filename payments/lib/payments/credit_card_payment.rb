@@ -41,6 +41,7 @@ module Payments
 
     def charge_credit_card(credit_card:, amount:)
       raise Payments::InvalidOperation unless can_charge?
+      raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
 
@@ -59,6 +60,7 @@ module Payments
 
     def authorize_credit_card(credit_card:, amount:)
       raise Payments::InvalidOperation unless can_authorize?
+      raise Payments::PaymentGatewayNotSelected unless payment_gateway_selected?
 
       transaction_id = @payment_gateway.charge(credit_card: credit_card, amount: amount)
 
@@ -124,31 +126,35 @@ module Payments
     end
 
     def can_select_payment_gateway?
-      @state.in?(%i[initialized assign_to_order failed_charge failed_authorization])
+      @state.initialized? || @state.assigned_to_order? || @state.failed_charge? || @state.failed_authorization
     end
 
     def can_charge?
-      @state.in?(%i[assigned_to_order failed_charge]) && @payment_gateway.present?
+      @state.assigned_to_order? || @state.failed_charge?
     end
 
     def can_authorize?
-      @state.in?(%i[assigned_to_order failed_authorization]) && @payment_gateway.present?
+      @state.assigned_to_order? || @state.failed_authorization?
     end
 
     def can_capture?
-      @state.in?(%i[authorized failed_capture])
+      @state.authorized? || @state.failed_capture?
     end
 
     def can_release?
-      @state.in?(%i[authorized failed_release])
+      @state.authorized? || @state.failed_release?
     end
 
     def can_refund?
-      @state.in?(%i[captured failed_refund])
+      @state.captured? || @state.charged? || @state.failed_refund?
+    end
+
+    def payment_gateway_selected?
+      @payment_gateway.present?
     end
 
     on Payments::PaymentAssignedToOrder do |event|
-      @state            = :assigned_to_order
+      @state            = Payments::Payment.new(:assigned_to_order)
       @order_reference  = OrderReference.new(event.data[:order_id])
     end
 
@@ -160,47 +166,47 @@ module Payments
     end
 
     on Payments::PaymentSucceded do |event|
-      @state    = :charged
-      @charged  = Payments::Amount(event.data[:amount], event.data[:currency])
+      @state    = Payments::Payment.new(:charged)
+      @charged  = Payments::Amount.new(event.data[:amount], event.data[:currency])
     end
 
     on Payments::PaymentFailed do |_event|
-      @state = :failed_charge
+      @state = Payments::Payment.new(:failed_charge)
     end
 
     on Payments::PaymentAuthorized do |event|
-      @state      = :authorized
-      @authorized = Payments::Amount(event.data[:amount], event.data[:currency])
+      @state      = Payments::Payment.new(:authorized)
+      @authorized = Payments::Amount.new(event.data[:amount], event.data[:currency])
     end
 
     on Payments::PaymentAuthorizationFailed do |_event|
-      @state = :failed_authorization
+      @state = Payments::Payment.new(:failed_authorization)
     end
 
     on Payments::AuthorizationCaptured do |_event|
-      @state            = :captured
+      @state            = Payments::Payment.new(:captured)
       @captured_balance = @authorized_balance
     end
 
     on Payments::AuthorizationCaptureFailed do |_event|
-      @state = :failed_capture
+      @state = Payments::Payment.new(:failed_capture)
     end
 
     on Payments::AuthorizationReleased do |_event|
-      @state = :released
+      @state = Payments::Payment.new(:released)
     end
 
     on Payments::AuthorizationReleaseFailed do |_event|
-      @state = :failed_release
+      @state = Payments::Payment.new(:failed_release)
     end
 
     on Payments::PaymentRefunded do |_event|
-      @state          = :refunded # NOTE: can add :partially_refunded state
+      @state          = Payments::Payment.new(:refunded) # NOTE: can add :partially_refunded state
       @refund_balance = @captured_balance
     end
 
     on Payments::PaymentRefundFailed do |_event|
-      @state = :failed_refund
+      @state = Payments::Payment.new(:failed_refund)
     end
   end
 end
