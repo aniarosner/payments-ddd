@@ -7,9 +7,8 @@ module Payments
     def assign_payment_to_order(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          credit_card_payment.assign_to_order(
-            payment_id: payment_id, order_id: order_id
-          )
+          order_reference = OrderReference.new(order_id)
+          credit_card_payment.assign_to_order(order_reference: order_reference)
         end
       end
     end

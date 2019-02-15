@@ -6,7 +6,7 @@ module Payments
 
     def initialize(payment_id)
       @payment_id       = payment_id
-      @order_id         = nil
+      @order_reference  = nil
       @transaction_id   = nil
       @payment_gateway  = nil
       @state            = :initialized
@@ -16,17 +16,17 @@ module Payments
       @refunded         = nil
     end
 
-    def assign_to_order(order_id:)
+    def assign_to_order(order_reference:)
       raise Payments::InvalidOperation unless can_assign?
 
       apply(Payments::PaymentAssignedToOrder.new(data: {
         payment_id: @payment_id,
-        order_id: order_id
+        order_id: order_reference.to_s
       }))
     rescue Payments::InvalidOperation
       apply(Payments::PaymentAssignmentFailed.new(data: {
         payment_id: @payment_id,
-        order_id: order_id
+        order_id: order_reference.to_s
       }))
     end
 
@@ -148,8 +148,8 @@ module Payments
     end
 
     on Payments::PaymentAssignedToOrder do |event|
-      @state    = :assigned_to_order
-      @order_id = event.data[:order_id]
+      @state            = :assigned_to_order
+      @order_reference  = OrderReference.new(event.data[:order_id])
     end
 
     on Payments::PaymentAssignmentFailed do |_event|
