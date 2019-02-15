@@ -14,14 +14,24 @@ module Payments
       end
     end
 
+    def charge_credit_card(cmd)
+      ActiveRecord::Base.transaction do
+        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
+          amount      = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
+          credit_card = Payments::CreditCard.new(token: cmd.credit_card_token)
+
+          credit_card_payment.charge_credit_card(credit_card: credit_card, amount: amount)
+        end
+      end
+    end
+
     def authorize_credit_card(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
           amount      = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
           credit_card = Payments::CreditCard.new(token: cmd.credit_card_token)
-          credit_card_payment.authorize_credit_card(
-            payment_id: payment_id, credit_card: credit_card, amount: amount
-          )
+
+          credit_card_payment.authorize_credit_card(credit_card: credit_card, amount: amount)
         end
       end
     end

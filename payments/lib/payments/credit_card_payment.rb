@@ -5,13 +5,14 @@ module Payments
     InvalidOperation = Class.new(StandardError)
 
     def initialize(payment_id)
-      @payment_id         = payment_id
-      @order_id           = nil
-      @transaction_id     = nil
-      @state              = :initialized
-      @authorized_balance = 0
-      @captured_balance   = 0
-      @currency           = nil
+      @payment_id     = payment_id
+      @order_id       = nil
+      @transaction_id = nil
+      @state          = :initialized
+      @authorized     = nil
+      @captured       = nil
+      @charged        = nil
+      @refunded       = nil
     end
 
     def assign_to_order(order_id:)
@@ -25,6 +26,22 @@ module Payments
       apply(Payments::PaymentAssignmentFailed.new(data: {
         payment_id: @payment_id,
         order_id: order_id
+      }))
+    end
+
+    def charge_credit_card(credit_card:, amount:)
+      raise Payments::InvalidOperation unless can_charge?
+
+      apply(PaymentSucceded.new(data: {
+        payment_id: @payment_id,
+        credit_card: credit_card.token,
+        amount: amount.value,
+        currency: amount.currency,
+        transaction_id: 'transaction_id' # TODO
+      }))
+    rescue Payments::InvalidOperation # SomePaymentGatewayError
+      apply(PaymentFailed.new(data: {
+        payment_id: @payment_id
       }))
     end
 
@@ -86,6 +103,10 @@ module Payments
       @state.in?(%i[initialized])
     end
 
+    def can_charge?
+      @state.in?(%i[assigned_to_order failed_charge])
+    end
+
     def can_authorize?
       @state.in?(%i[assigned_to_order failed_authorization])
     end
@@ -110,10 +131,18 @@ module Payments
     on Payments::PaymentAssignmentFailed do |event|
     end
 
+    on Payments::PaymentSucceded do |event|
+      @state    = :charged
+      @charged  = Payments::Amount(event.data[:amount], event.data[:currency])
+    end
+
+    on Payments::PaymentFailed do |_event|
+      @state = :failed_charge
+    end
+
     on Payments::PaymentAuthorized do |event|
-      @state              = :authorized
-      @authorized_balance = event.data[:amount]
-      @currency           = event.data[:currency]
+      @state      = :authorized
+      @authorized = Payments::Amount(event.data[:amount], event.data[:currency])
     end
 
     on Payments::PaymentAuthorizationFailed do |_event|
@@ -121,7 +150,8 @@ module Payments
     end
 
     on Payments::AuthorizationCaptured do |_event|
-      @state = :captured
+      @state            = :captured
+      @captured_balance = @authorized_balance
     end
 
     on Payments::AuthorizationCaptureFailed do |_event|
@@ -137,7 +167,8 @@ module Payments
     end
 
     on Payments::PaymentRefunded do |_event|
-      @state = :refunded
+      @state          = :refunded # NOTE: can add :partially_refunded state
+      @refund_balance = @captured_balance
     end
 
     on Payments::PaymentRefundFailed do |_event|

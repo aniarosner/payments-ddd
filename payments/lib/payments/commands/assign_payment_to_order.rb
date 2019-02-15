@@ -1,7 +1,6 @@
 module Payments
   class AssignPaymentToOrder
     include Command
-
     attr_accessor :payment_id,
                   :order_id
 

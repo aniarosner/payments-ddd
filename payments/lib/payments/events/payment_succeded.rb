@@ -1,6 +1,11 @@
 module Payments
   class PaymentSucceded < RailsEventStore::Event
     SCHEMA = {
+      payment_id: String,
+      credit_card: String,
+      amount: Integer,
+      currency: String,
+      transaction_id: String
     }.freeze
 
     def self.strict(data:)
