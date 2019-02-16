@@ -7,7 +7,7 @@ module Payments
     def initialize(payment_id)
       @payment_id       = payment_id
       @order_reference  = nil
-      @transaction_id   = nil
+      @transaction      = nil
       @state            = :initialized
       @authorized       = nil
       @captured         = nil
@@ -32,14 +32,14 @@ module Payments
     def charge_credit_card(credit_card:, amount:, payment_gateway:)
       raise Payments::InvalidOperation unless @state.valid_for_charge?
 
-      transaction_id = payment_gateway.charge(credit_card: credit_card, amount: amount)
+      transaction = payment_gateway.charge(credit_card: credit_card, amount: amount)
 
       apply(PaymentSucceded.new(data: {
         payment_id: @payment_id,
         credit_card: credit_card.token,
         amount: amount.value,
         currency: amount.currency,
-        transaction_id: transaction_id
+        transaction_identifier: transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(PaymentFailed.new(data: {
@@ -50,14 +50,14 @@ module Payments
     def authorize_credit_card(credit_card:, amount:, payment_gateway:)
       raise Payments::InvalidOperation unless @state.valid_for_authorization?
 
-      transaction_id = payment_gateway.charge(credit_card: credit_card, amount: amount)
+      transaction = payment_gateway.charge(credit_card: credit_card, amount: amount)
 
       apply(PaymentAuthorized.new(data: {
         payment_id: @payment_id,
         credit_card: credit_card.token,
         amount: amount.value,
         currency: amount.currency,
-        transaction_id: transaction_id
+        transaction_identifier: transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(PaymentAuthorizationFailed.new(data: {
@@ -69,7 +69,7 @@ module Payments
     def capture_authorization(payment_gateway:)
       raise Payments::InvalidOperation unless @state.valid_for_capture?
 
-      payment_gateway.capture(transaction_id: @transaction_id, amount: @authorized)
+      payment_gateway.capture(transaction: @transaction, amount: @authorized)
 
       apply(AuthorizationCaptured.new(data: {
         payment_id: @payment_id
@@ -83,7 +83,7 @@ module Payments
     def release_authorization(payment_gateway:)
       raise Payments::InvalidOperation unless @state.valid_for_release?
 
-      payment_gateway.release(transaction_id: @transaction_id)
+      payment_gateway.release(transaction: @transaction)
 
       apply(AuthorizationReleased.new(data: {
         payment_id: @payment_id
@@ -98,7 +98,7 @@ module Payments
     def refund(payment_gateway:)
       raise Payments::InvalidOperation unless @state.valid_for_refund?
 
-      payment_gateway.refund(transaction_id: @transaction_id, amount: @charged || @captured)
+      payment_gateway.refund(transaction: @transaction, amount: @charged || @captured)
 
       apply(PaymentRefunded.new(data: {
         payment_id: @payment_id
@@ -118,8 +118,9 @@ module Payments
     end
 
     on Payments::PaymentSucceded do |event|
-      @state    = Payments::Payment.new(:charged)
-      @charged  = Payments::Amount.new(event.data[:amount], event.data[:currency])
+      @state        = Payments::Payment.new(:charged)
+      @charged      = Payments::Amount.new(event.data[:amount], event.data[:currency])
+      @transaction  = Payments::Transaction.new(event.data[:transaction_identifier])
     end
 
     on Payments::PaymentFailed do |_event|
@@ -127,8 +128,9 @@ module Payments
     end
 
     on Payments::PaymentAuthorized do |event|
-      @state      = Payments::Payment.new(:authorized)
-      @authorized = Payments::Amount.new(event.data[:amount], event.data[:currency])
+      @state        = Payments::Payment.new(:authorized)
+      @authorized   = Payments::Amount.new(event.data[:amount], event.data[:currency])
+      @transaction  = Payments::Transaction.new(event.data[:transaction_identifier])
     end
 
     on Payments::PaymentAuthorizationFailed do |_event|

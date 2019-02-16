@@ -5,7 +5,7 @@ module Payments
       credit_card: String,
       amount: Integer,
       currency: String,
-      transaction_id: String
+      transaction_identifier: String
     }.freeze
 
     def self.strict(data:)

@@ -1,11 +1,13 @@
 module Payments
   class PayPalAdapter
-    def charge; end
+    def charge(credit_card:, amount:); end
 
-    def authorize; end
+    def authorize(credit_card:, amount:); end
 
-    def capture; end
+    def capture(transaction:, amount:); end
 
-    def release; end
+    def release(transaction:); end
+
+    def refund(transaction:, amount:); end
   end
 end
