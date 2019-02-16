@@ -56,10 +56,6 @@ module Payments
       state.initialized?
     end
 
-    def valid_for_payment_gateway_setting?
-      state.initialized? || state.assigned_to_order? || state.failed_charge? || state.failed_authorization
-    end
-
     def valid_for_charge?
       state.assigned_to_order? || state.failed_charge?
     end

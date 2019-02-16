@@ -8,16 +8,8 @@ module Payments
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
           order_reference = Paymnets::OrderReference.new(order_id)
-          credit_card_payment.assign_to_order(order_reference: order_reference)
-        end
-      end
-    end
 
-    def select_payment_gateway(cmd)
-      ActiveRecord::Base.transaction do
-        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          payment_gateway = Payments::PaymentGateway.new(cmd.payment_gateway)
-          credit_card_payment.select_payment_gateway(payment_gateway: payment_gateway)
+          credit_card_payment.assign_to_order(order_reference: order_reference)
         end
       end
     end
@@ -25,10 +17,13 @@ module Payments
     def charge_credit_card(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          amount      = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
-          credit_card = Payments::CreditCard.new(token: cmd.credit_card_token)
+          amount          = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
+          credit_card     = Payments::CreditCard.new(token: cmd.credit_card_token)
+          payment_gateway = Payments::PayPalAdapter.new
 
-          credit_card_payment.charge_credit_card(credit_card: credit_card, amount: amount)
+          credit_card_payment.charge_credit_card(
+            credit_card: credit_card, amount: amount, payment_gateway: payment_gateway
+          )
         end
       end
     end
@@ -38,8 +33,11 @@ module Payments
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
           amount      = Payments::Amount.new(amount: cmd.amount, currency: cmd.currency)
           credit_card = Payments::CreditCard.new(token: cmd.credit_card_token)
+          payment_gateway = Payments::PayPalAdapter.new
 
-          credit_card_payment.authorize_credit_card(credit_card: credit_card, amount: amount)
+          credit_card_payment.authorize_credit_card(
+            credit_card: credit_card, amount: amount, payment_gateway: payment_gateway
+          )
         end
       end
     end
@@ -47,7 +45,8 @@ module Payments
     def capture_authorization(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          credit_card_payment.capture_authorization
+          payment_gateway = Payments::PayPalAdapter.new
+          credit_card_payment.capture_authorization(payment_gateway: payment_gateway)
         end
       end
     end
@@ -55,7 +54,8 @@ module Payments
     def release_authorization(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          credit_card_payment.release_authorization
+          payment_gateway = Payments::PayPalAdapter.new
+          credit_card_payment.release_authorization(payment_gateway: payment_gateway)
         end
       end
     end
@@ -63,7 +63,8 @@ module Payments
     def refund(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          credit_card_payment.refund
+          payment_gateway = Payments::PayPalAdapter.new
+          credit_card_payment.refund(payment_gateway: payment_gateway)
         end
       end
     end
