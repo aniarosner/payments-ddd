@@ -20,3 +20,14 @@ require_dependency 'payments/events/payment_failed.rb'
 require_dependency 'payments/events/payment_refund_failed.rb'
 require_dependency 'payments/events/payment_refunded.rb'
 require_dependency 'payments/events/payment_succeded.rb'
+
+require_dependency 'payments/infrastructure/pay_pal_adapter.rb'
+
+require_dependency 'payments/value_objects/amount.rb'
+require_dependency 'payments/value_objects/credit_card.rb'
+require_dependency 'payments/value_objects/order_reference.rb'
+require_dependency 'payments/value_objects/payment_state.rb'
+require_dependency 'payments/value_objects/transaction.rb'
+
+require_dependency 'payments/credit_card_payment_command_handler.rb'
+require_dependency 'payments/credit_card_payment.rb'
