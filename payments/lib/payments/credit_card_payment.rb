@@ -52,7 +52,7 @@ module Payments
         currency: amount.currency,
         transaction_id: transaction_id
       }))
-    rescue Payments::InvalidOperation, Payments::PaymentGatewayError
+    rescue Payments::PaymentGatewayNotSelected, Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(PaymentFailed.new(data: {
         payment_id: @payment_id
       }))

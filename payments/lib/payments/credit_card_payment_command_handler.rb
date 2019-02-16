@@ -7,8 +7,17 @@ module Payments
     def assign_payment_to_order(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
-          order_reference = OrderReference.new(order_id)
+          order_reference = Paymnets::OrderReference.new(order_id)
           credit_card_payment.assign_to_order(order_reference: order_reference)
+        end
+      end
+    end
+
+    def select_payment_gateway(cmd)
+      ActiveRecord::Base.transaction do
+        with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
+          payment_gateway = Payments::PaymentGateway.new(cmd.payment_gateway)
+          credit_card_payment.select_payment_gateway(payment_gateway: payment_gateway)
         end
       end
     end
