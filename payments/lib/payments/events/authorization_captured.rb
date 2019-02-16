@@ -1,7 +1,11 @@
 module Payments
   class AuthorizationCaptured < RailsEventStore::Event
     SCHEMA = {
-      payment_id: String
+      payment_id: String,
+      order_id: String,
+      amount: Integer,
+      currency: String,
+      transaction_identifier: String
     }.freeze
 
     def self.strict(data:)

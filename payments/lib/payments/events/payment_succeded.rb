@@ -2,7 +2,7 @@ module Payments
   class PaymentSucceded < RailsEventStore::Event
     SCHEMA = {
       payment_id: String,
-      credit_card: String,
+      order_id: String,
       amount: Integer,
       currency: String,
       transaction_identifier: String
