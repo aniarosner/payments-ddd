@@ -60,7 +60,7 @@ module Payments
       end
     end
 
-    def refund(cmd)
+    def refund_payment(cmd)
       ActiveRecord::Base.transaction do
         with_credit_card_payment(cmd.payment_id) do |credit_card_payment|
           payment_gateway = Payments::PayPalAdapter.new
