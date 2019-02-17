@@ -38,17 +38,17 @@ module Orders
       }))
     end
 
-    def submit
+    def submit_order
       raise Orders::InvalidOperation unless @state.valid_for_submit?
       raise Orders::MissingShippingInfo unless @shipping_info.present?
       raise Orders::ContactInfo unless @contact_info.present?
 
-      apply(OrderSubmitted.new(data: {
+      apply(Orders::OrderSubmitted.new(data: {
         order_id: @order_id
       }))
     end
 
-    def cancel
+    def cancel_order
       raise Orders::InvalidOperation unless @state.valid_for_cancel?
 
       apply(Orders::OrderCancelled.new(data: {

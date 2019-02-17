@@ -4,7 +4,7 @@ module Orders
       @event_store = Rails.configuration.event_store
     end
 
-    def place(cmd)
+    def place_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
           order.place
@@ -34,7 +34,7 @@ module Orders
       end
     end
 
-    def submit(cmd)
+    def submit_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
           order.submit
@@ -42,7 +42,7 @@ module Orders
       end
     end
 
-    def cancel(cmd)
+    def cancel_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
           order.cancel
