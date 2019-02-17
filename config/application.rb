@@ -11,6 +11,7 @@ module PaymentsDdd
 
     config.paths.add 'command/lib', eager_load: true
     config.paths.add 'fulfillment/lib', eager_load: true
+    config.paths.add 'inventory/lib', eager_load: true
     config.paths.add 'orders/lib', eager_load: true
     config.paths.add 'payments/lib', eager_load: true
     config.paths.add 'ui/lib', eager_load: true
