@@ -53,7 +53,7 @@ module Orders
     private
 
     def with_order(order_id)
-      Orders::CreditCardPayment.new(order_id).tap do |order|
+      Orders::Order.new(order_id).tap do |order|
         load_credit_card_payment(order_id, order)
         yield order
         store_course(order)
@@ -69,7 +69,7 @@ module Orders
     end
 
     def stream_name(order_id)
-      "Orders::CreditCardPayment$#{order_id}"
+      "Orders::Order$#{order_id}"
     end
   end
 end

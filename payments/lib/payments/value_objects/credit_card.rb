@@ -4,7 +4,7 @@ module Payments
     InvalidFormat = Class.new(StandardError)
 
     def initialize(token)
-      raise InvalidFormat unless token.class
+      raise InvalidFormat unless token.class == String
 
       @token = token
     end
