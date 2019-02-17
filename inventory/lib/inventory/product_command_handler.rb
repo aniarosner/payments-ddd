@@ -18,7 +18,8 @@ module Inventory
         Inventory::ProductRegistered.new(data: {
           product_id: cmd.product_id,
           name: cmd.name,
-          sku: cmd.sku
+          sku: cmd.sku,
+          quantity: 0
         }),
         stream_name: stream_name(cmd.product_id)
       )

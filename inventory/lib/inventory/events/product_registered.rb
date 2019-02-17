@@ -3,7 +3,8 @@ module Inventory
     SCHEMA = {
       product_id: String,
       sku: String,
-      name: String
+      name: String,
+      quantity: Integer
     }.freeze
 
     def self.strict(data:)
