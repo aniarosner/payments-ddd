@@ -1,4 +1,4 @@
-module Payments
+module UI
   class Amount
     include Comparable
 
@@ -13,6 +13,10 @@ module Payments
 
     def to_i
       value
+    end
+
+    def currency_symbol
+      currency
     end
 
     def to_s
