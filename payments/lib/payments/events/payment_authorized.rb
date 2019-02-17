@@ -2,7 +2,6 @@ module Payments
   class PaymentAuthorized < RailsEventStore::Event
     SCHEMA = {
       payment_id: String,
-      order_id: String,
       amount: Integer,
       currency: String,
       transaction_identifier: String

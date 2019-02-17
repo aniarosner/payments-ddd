@@ -36,7 +36,6 @@ module Payments
 
       apply(PaymentSucceded.new(data: {
         payment_id: @payment_id,
-        order_id: @order_reference.to_s,
         amount: amount.value,
         currency: amount.currency,
         transaction_identifier: transaction.identifier
@@ -54,7 +53,6 @@ module Payments
 
       apply(PaymentAuthorized.new(data: {
         payment_id: @payment_id,
-        order_id: @order_reference.to_s,
         amount: amount.value,
         currency: amount.currency,
         transaction_identifier: transaction.identifier
@@ -73,7 +71,6 @@ module Payments
 
       apply(AuthorizationCaptured.new(data: {
         payment_id: @payment_id,
-        order_id: @order_reference.to_s,
         amount: @authorized.value,
         currency: @authorized.currency,
         transaction_identifier: @transaction.identifier
