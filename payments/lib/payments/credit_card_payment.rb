@@ -36,13 +36,15 @@ module Payments
 
       apply(Payments::PaymentSucceded.new(data: {
         payment_id: @payment_id,
+        order_id: @order_reference.to_s,
         amount: amount.value,
         currency: amount.currency,
         transaction_identifier: transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(Payments::PaymentFailed.new(data: {
-        payment_id: @payment_id
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     end
 
@@ -51,15 +53,17 @@ module Payments
 
       transaction = payment_gateway.charge(credit_card: credit_card, amount: amount)
 
-      apply(Payments::PaymentAuthorized.new(data: {
+      apply(Payments::PaymentAuthorized.new(data: { # TODO: Rename
         payment_id: @payment_id,
+        order_id: @order_reference.to_s,
         amount: amount.value,
         currency: amount.currency,
         transaction_identifier: transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
-      apply(Payments::PaymentAuthorizationFailed.new(data: {
-        payment_id: @payment_id
+      apply(Payments::PaymentAuthorizationFailed.new(data: { # TODO: Rename
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     end
 
@@ -71,13 +75,15 @@ module Payments
 
       apply(Payments::AuthorizationCaptured.new(data: {
         payment_id: @payment_id,
+        order_id: @order_reference.to_s,
         amount: @authorized.value,
         currency: @authorized.currency,
         transaction_identifier: @transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(Payments::AuthorizationCaptureFailed.new(data: {
-        payment_id: @payment_id
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     end
 
@@ -87,11 +93,13 @@ module Payments
       payment_gateway.release(transaction: @transaction)
 
       apply(Payments::AuthorizationReleased.new(data: {
-        payment_id: @payment_id
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(Payments::AuthorizationReleaseFailed.new(data: {
-        payment_id: @payment_id
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     end
 
@@ -104,13 +112,15 @@ module Payments
 
       apply(Payments::PaymentRefunded.new(data: {
         payment_id: @payment_id,
+        order_id: @order_reference.to_s,
         amount: amount.value,
         currency: amount.currency,
         transaction_identifier: @transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
       apply(Payments::PaymentRefundFailed.new(data: {
-        payment_id: @payment_id
+        payment_id: @payment_id,
+        order_id: @order_reference.to_s
       }))
     end
 
