@@ -1,5 +1,5 @@
 module Payments
-  class PaymentAuthorized < RailsEventStore::Event
+  class CreditCardAuthorized < RailsEventStore::Event
     SCHEMA = {
       payment_id: String,
       order_id: String,

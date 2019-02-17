@@ -53,7 +53,7 @@ module Payments
 
       transaction = payment_gateway.charge(credit_card: credit_card, amount: amount)
 
-      apply(Payments::PaymentAuthorized.new(data: { # TODO: Rename
+      apply(Payments::CreditCardAuthorized.new(data: {
         payment_id: @payment_id,
         order_id: @order_reference.to_s,
         amount: amount.value,
@@ -61,7 +61,7 @@ module Payments
         transaction_identifier: transaction.identifier
       }))
     rescue Payments::InvalidOperation, Payments::PaymentGatewayError
-      apply(Payments::PaymentAuthorizationFailed.new(data: { # TODO: Rename
+      apply(Payments::CreditCardAuthorizationFailed.new(data: {
         payment_id: @payment_id,
         order_id: @order_reference.to_s
       }))
@@ -142,13 +142,13 @@ module Payments
       @state = Payments::Payment.new(:failed_charge)
     end
 
-    on Payments::PaymentAuthorized do |event|
+    on Payments::CreditCardAuthorized do |event|
       @state        = Payments::Payment.new(:authorized)
       @authorized   = Payments::Amount.new(event.data[:amount], event.data[:currency])
       @transaction  = Payments::Transaction.new(event.data[:transaction_identifier])
     end
 
-    on Payments::PaymentAuthorizationFailed do |_event|
+    on Payments::CreditCardAuthorizationFailed do |_event|
       @state = Payments::Payment.new(:failed_authorization)
     end
 

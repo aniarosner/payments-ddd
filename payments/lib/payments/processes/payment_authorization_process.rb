@@ -26,7 +26,7 @@ module Payments
       when Payments::PaymentAssignedToOrder
         @payment_id    = event.data[:payment_id]
         @payment_state = :assigned
-      when Payments::PaymentAuthorized
+      when Payments::CreditCardAuthorized
         @payment_state = :authorized
       when Payments::AuthorizationCaptured
         @payment_state = :captured

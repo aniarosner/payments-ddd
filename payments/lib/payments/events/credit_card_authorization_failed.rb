@@ -1,5 +1,5 @@
 module Payments
-  class PaymentAuthorizationFailed < RailsEventStore::Event
+  class CreditCardAuthorizationFailed < RailsEventStore::Event
     SCHEMA = {
       payment_id: String
     }.freeze
