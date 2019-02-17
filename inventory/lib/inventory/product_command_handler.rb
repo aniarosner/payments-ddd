@@ -8,8 +8,10 @@ module Inventory
 
     def register_product(cmd)
       Inventory::Product.create!(
+        product_id: cmd.product_id,
         name: cmd.name,
-        sku: cmd.sku
+        sku: cmd.sku,
+        quantity: 0
       )
 
       @event_store.publish(
