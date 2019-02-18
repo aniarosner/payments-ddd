@@ -11,13 +11,15 @@ Rails.configuration.to_prepare do
   end
 
   Rails.configuration.event_store.tap do |store|
+    store.subscribe(Fulfillment::OnOrderSubmitted, to: [Orders::OrderSubmitted])
     store.subscribe(Fulfillment::Inventory::OnProductQuantitySet, to: [Inventory::ProductQuantitySet])
     store.subscribe(Fulfillment::Inventory::OnProductRegistered, to: [Inventory::ProductRegistered])
 
+    store.subscribe(Inventory::OnOrderAccepted, to: [Fulfillment::OrderAccepted])
+
     store.subscribe(
-      Payments::OrderShippingProcess, to:
-      [Orders::OrderSubmitted, Orders::OrderShipped, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
-       Fulfillment::OrderAccepted, Fulfillment::OrderRejected, Orders::OrderCancelled]
+      Order::OrderShippingProcess, to:
+      [] # TODO
     )
 
     store.subscribe(
