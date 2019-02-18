@@ -23,6 +23,8 @@ require_dependency 'payments/events/payment_succeded.rb'
 
 require_dependency 'payments/infrastructure/pay_pal_adapter.rb'
 
+require_dependency 'payments/processes/credit_card_authorization_process.rb'
+
 require_dependency 'payments/value_objects/amount.rb'
 require_dependency 'payments/value_objects/credit_card.rb'
 require_dependency 'payments/value_objects/order_reference.rb'
