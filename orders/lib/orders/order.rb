@@ -7,15 +7,17 @@ module Orders
     def initialize(order_id)
       @order_id       = order_id
       @order_state    = Orders::OrderState.new(:initialized)
+      @order_lines    = []
       @shipping_info  = nil
       @contact_info   = nil
     end
 
-    def place
+    def place(order_lines)
       raise Orders::InvalidOperation unless @state.valid_for_place?
 
       apply(Orders::OrderPlaced.new(data: {
-        order_id: @order_id
+        order_id: @order_id,
+        order_lines: order_lines.map { |order_line| order_line.to_hash }
       }))
     end
 
@@ -44,7 +46,8 @@ module Orders
       raise Orders::ContactInfo unless @contact_info.present?
 
       apply(Orders::OrderSubmitted.new(data: {
-        order_id: @order_id
+        order_id: @order_id,
+        order_lines: @order_lines.map { |order_line| order_line.to_hash }
       }))
     end
 
@@ -66,6 +69,12 @@ module Orders
 
     on Orders::OrderPlaced do |_event|
       @state = Orders::OrderState.new(:placed)
+      @order_lines = event.data[:order_lines].map do |order_line|
+        Orders::OrderLine.new(
+          product_id: order_line[:product_id], sku: order_line[:sku], quantity: order_line[:quantity],
+          price: order_line[:price]
+        )
+      end
     end
 
     on Orders::ShippingInfoProvided do |event|

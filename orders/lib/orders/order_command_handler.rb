@@ -7,7 +7,13 @@ module Orders
     def place_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
-          order.place
+          order_lines = cmd.order_lines.each do |order_line|
+            Orders::OrderLine.new(
+              product_id: order_line[:product_id], sku: order_line[:sku], quantity: order_line[:quantity],
+              price: order_line[:price]
+            )
+          end
+          order.place(order_lines)
         end
       end
     end
