@@ -21,10 +21,9 @@ Rails.configuration.to_prepare do
     )
 
     store.subscribe(
-      Payments::AuthorizationProcess, to:
+      Payments::CreditCardAuthorizationProcess, to:
       [Orders::OrderSubmitted, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
-       Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Fulfillment::OrderAccepted,
-       Fulfillment::OrderRejected, Orders::OrderCancelled]
+       Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Orders::OrderShipped, Orders::OrderCancelled]
     )
 
     store.subscribe(UI::Ledger::OnAuthorizationCaptured, to: [Payments::AuthorizationCaptured])
@@ -45,6 +44,7 @@ Rails.configuration.to_prepare do
     bus.register(Orders::PlaceOrder, ->(cmd) { Orders::OrderCommandHandler.new.place_order(cmd) })
     bus.register(Orders::ProvideContactInfo, ->(cmd) { Orders::OrderCommandHandler.new.provide_contact_info(cmd) })
     bus.register(Orders::ProvideShippingInfo, ->(cmd) { Orders::OrderCommandHandler.new.provide_shipping_info(cmd) })
+    bus.register(Orders::ShipOrder, ->(cmd) { Orders::OrderCommandHandler.new.ship_order(cmd) })
     bus.register(Orders::SubmitOrder, ->(cmd) { Orders::OrderCommandHandler.new.submit_order(cmd) })
 
     bus.register(Payments::AssignPaymentToOrder, ->(cmd) { Payments::CreditCardPaymentCommandHandler.new.assign_payment_to_order(cmd) })
