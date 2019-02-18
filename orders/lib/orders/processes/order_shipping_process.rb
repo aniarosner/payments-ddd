@@ -1,4 +1,4 @@
-module Payments
+module Orders
   class OrderShippingProcess
     class State
       def initialize(event_store:, stream_name:)

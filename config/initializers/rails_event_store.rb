@@ -19,7 +19,8 @@ Rails.configuration.to_prepare do
 
     store.subscribe(
       Order::OrderShippingProcess, to:
-      [] # TODO
+      [Orders::OrderSubmitted, Orders::OrderShipped, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
+       Fulfillment::OrderAccepted, Fulfillment::OrderRejected, Orders::OrderCancelled]
     )
 
     store.subscribe(
