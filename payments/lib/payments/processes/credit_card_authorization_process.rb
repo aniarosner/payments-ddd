@@ -1,5 +1,5 @@
 module Payments
-  class AuthorizationProcess
+  class CreditCardAuthorizationProcess
     class State
       def initialize(event_store:, stream_name:)
         @event_store = event_store
