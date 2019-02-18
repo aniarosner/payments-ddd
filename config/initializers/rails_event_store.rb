@@ -15,6 +15,12 @@ Rails.configuration.to_prepare do
     store.subscribe(Fulfillment::Inventory::OnProductRegistered, to: [Inventory::ProductRegistered])
 
     store.subscribe(
+      Payments::OrderShippingProcess, to:
+      [Orders::OrderSubmitted, Orders::OrderShipped, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
+       Fulfillment::OrderAccepted, Fulfillment::OrderRejected, Orders::OrderCancelled]
+    )
+
+    store.subscribe(
       Payments::AuthorizationProcess, to:
       [Orders::OrderSubmitted, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
        Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Fulfillment::OrderAccepted,
