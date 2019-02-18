@@ -8,9 +8,9 @@ module Fulfillment
       order_lines = parse_order_lines_from_event(event.data[:order_lines])
 
       if all_products_available?(order_lines)
-        @command_bus.call(Fulfillment::AcceptOrder.new(order_id: event.data[:order_id]))
+        @command_bus.call(Fulfillment::AcceptOrder.new(order_id: event.data[:order_id], order_lines: order_lines))
       else
-        @command_bus.call(Fulfillment::RejectOrder.new(order_id: event.data[:order_id]))
+        @command_bus.call(Fulfillment::RejectOrder.new(order_id: event.data[:order_id], order_lines: order_lines))
       end
     end
 

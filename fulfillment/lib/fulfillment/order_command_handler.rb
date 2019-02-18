@@ -7,7 +7,7 @@ module Fulfillment
     def accept_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
-          order.accept
+          order.accept(cmd.order_lines)
         end
       end
     end
@@ -15,7 +15,7 @@ module Fulfillment
     def reject_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|
-          order.reject
+          order.reject(cmd.order_lines)
         end
       end
     end

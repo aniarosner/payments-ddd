@@ -9,19 +9,21 @@ module Fulfillment
       @state = Fulfillment::OrderState.new(:initialized)
     end
 
-    def accept
+    def accept(order_lines)
       raise AlreadyAccepted if @state.accepted?
 
       apply(Fulfillment::OrderAccepted.new(data: {
-        order_id: @order_id
+        order_id: @order_id,
+        orer_lines: order_lines.to_hash
       }))
     end
 
-    def reject
+    def reject(order_lines)
       raise AlreadyAccepted if @state.accepted?
 
       apply(Fulfillment::OrderRejected.new(data: {
-        order_id: @order_id
+        order_id: @order_id,
+        orer_lines: order_lines.to_hash
       }))
     end
 

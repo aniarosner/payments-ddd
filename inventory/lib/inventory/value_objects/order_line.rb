@@ -1,4 +1,4 @@
-module Fulfillment
+module Inventory
   class OrderLine
     def initialize(product_id:, sku:, quantity:)
       @product_id = product_id
