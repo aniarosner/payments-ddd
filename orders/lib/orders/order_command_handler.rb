@@ -42,6 +42,14 @@ module Orders
       end
     end
 
+    def ship_order(cmd)
+      ActiveRecord::Base.transaction do
+        with_order(cmd.order_id) do |order|
+          order.ship
+        end
+      end
+    end
+
     def cancel_order(cmd)
       ActiveRecord::Base.transaction do
         with_order(cmd.order_id) do |order|

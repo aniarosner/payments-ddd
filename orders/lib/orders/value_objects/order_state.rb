@@ -12,6 +12,14 @@ module Orders
       state == :placed
     end
 
+    def submitted?
+      state == :submitted
+    end
+
+    def shipped?
+      state == :shipped
+    end
+
     def cancelled?
       state == :cancelled
     end
@@ -30,6 +38,10 @@ module Orders
 
     def valid_for_submit?
       state.placed?
+    end
+
+    def valid_for_shipping?
+      state.submitted?
     end
 
     def valid_for_cancel?

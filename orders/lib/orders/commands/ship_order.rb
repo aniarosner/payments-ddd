@@ -1,5 +1,5 @@
 module Orders
-  class SubmitOrder
+  class ShipOrder
     include Command
     attr_accessor :order_id
 

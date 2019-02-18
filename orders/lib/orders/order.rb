@@ -38,7 +38,7 @@ module Orders
       }))
     end
 
-    def submit_order
+    def submit
       raise Orders::InvalidOperation unless @state.valid_for_submit?
       raise Orders::MissingShippingInfo unless @shipping_info.present?
       raise Orders::ContactInfo unless @contact_info.present?
@@ -48,7 +48,15 @@ module Orders
       }))
     end
 
-    def cancel_order
+    def ship
+      raise Orders::InvalidOperation unless @state.valid_for_shipping?
+
+      apply(Orders::OrderShipped.new(data: {
+        order_id: @order_id
+      }))
+    end
+
+    def cancel
       raise Orders::InvalidOperation unless @state.valid_for_cancel?
 
       apply(Orders::OrderCancelled.new(data: {
@@ -56,25 +64,29 @@ module Orders
       }))
     end
 
-    on Orders::OrderPlaced.new do |_event|
+    on Orders::OrderPlaced do |_event|
       @state = Orders::OrderState.new(:placed)
     end
 
-    on Orders::ShippingInfoProvided.new do |event|
+    on Orders::ShippingInfoProvided do |event|
       @shipping_info = Orders::ShippingInfo.new(
         receiver_name: event.data[:receiver_name], shipping_address: event.data[:shipping_address]
       )
     end
 
-    on Orders::ContactInfoProvided.new do |event|
+    on Orders::ContactInfoProvided do |event|
       @contact_info = Orders::ContactInfo.new(contact_phone_number: event.data[:contact_phone_number])
     end
 
-    on Orders::OrderCancelled.new do |_event|
+    on Orders::OrderCancelled do |_event|
       @state = Orders::OrderState.new(:cancelled)
     end
 
-    on OrderSubmitted.new do |_event|
+    on Orders::OrderShipped do |_event|
+      @state = Orders::OrderState.new(:shipped)
+    end
+
+    on OrderSubmitted do |_event|
       @state = Orders::OrderState.new(:submitted)
     end
   end
