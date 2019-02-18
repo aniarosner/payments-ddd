@@ -18,6 +18,7 @@ require_dependency 'orders/events/shipping_info_provided.rb'
 require_dependency 'orders/processes/order_shipping_process.rb'
 
 require_dependency 'orders/value_objects/contact_info.rb'
+require_dependency 'orders/value_objects/order_line.rb'
 require_dependency 'orders/value_objects/order_state.rb'
 require_dependency 'orders/value_objects/shipping_info.rb'
 
