@@ -9,7 +9,6 @@ module Payments
         @order_id           = nil
         @payment_state      = :unknown
         @payment_id         = nil
-        @order_fulfillment  = :unknown
 
         @version           = -1
         @event_ids_to_link = []
@@ -32,10 +31,8 @@ module Payments
         @payment_state = :captured
       when Payments::AuthorizationReleased
         @payment_state = :released
-      when Fulfillment::OrderAccepted
-        @fulfillment = :accepted
-      when Fulfillment::OrderRejected
-        @fulfillment = :rejected
+      when Orders::OrderShipped
+        @order_state = :shipped
       when Orders::OrderCancelled
         @order_state = :cancelled
       end
@@ -65,33 +62,33 @@ module Payments
       retry
     end
 
-    private
-
     def capture?
-      accepted_fulfillment?
+      order_shipped? && credit_card_authorized?
     end
 
     def release?
-      rejected_fulfillment? || cancelled_order?
+      order_cancelled? && credit_card_authorized?
     end
 
-    def accepted_fulfillment?
-      @order_state == :submitted && @payment_state == :authorized && @fulfillment == :accepted
+    private
+
+    def order_shipped?
+      @order_state == :shipped
     end
 
-    def rejected_fulfillment?
-      @order_state == :submitted && @payment_state == :authorized && @fulfillment == :rejected
+    def credit_card_authorized?
+      @payment_state == :authorized
     end
 
-    def cancelled_order?
-      @order_state == :cancelled && @payment_state == :authorized
+    def order_cancelled?
+      @order_state == :cancelled
     end
   end
 
   private_constant :State
 
   def call(event)
-    stream_name = "PaymentAuthorizationProcess$#{event.data[:order_id]}"
+    stream_name = "CreditCardAuthorizationProcess$#{event.data[:order_id]}"
 
     state = State.new
     state.load(event_store: @event_store, stream_name: stream_name)
