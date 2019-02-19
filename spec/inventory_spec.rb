@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 RSpec.describe 'Maintaining inventory' do
-  let(:command_bus) { Rails.configuration.command_bus }
-
   it do
     command_bus.call(
       Inventory::RegisterProduct.new(
@@ -44,6 +42,10 @@ RSpec.describe 'Maintaining inventory' do
     )
 
     expect(Fulfillment::InventoryReadModel.new.product_quantity(nice_stapler.product_id)).to eq(10)
+  end
+
+  def command_bus
+    Rails.configuration.command_bus
   end
 
   def nice_stapler

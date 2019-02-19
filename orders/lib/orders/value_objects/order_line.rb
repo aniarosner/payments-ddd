@@ -1,10 +1,11 @@
 module Orders
   class OrderLine
-    def initialize(product_id:, sku:, quantity:, price:)
+    def initialize(product_id:, sku:, quantity:, price:, currency:)
       @product_id = product_id
       @sku        = sku
       @quantity   = quantity
       @price      = price
+      @currency   = currency
     end
 
     def <=>(other)
@@ -16,12 +17,13 @@ module Orders
         product_id: product_id,
         sku: sku,
         quantity: quantity,
-        price: price
+        price: price,
+        currency: currency
       }
     end
 
     alias eql? ==
 
-    attr_reader :product_id, :sku, :quantity, :price
+    attr_reader :product_id, :sku, :quantity, :price, :currency
   end
 end

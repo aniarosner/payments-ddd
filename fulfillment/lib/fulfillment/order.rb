@@ -14,7 +14,7 @@ module Fulfillment
 
       apply(Fulfillment::OrderAccepted.new(data: {
         order_id: @order_id,
-        orer_lines: order_lines.to_hash
+        order_lines: order_lines.map { |order_line| order_line.to_hash }
       }))
     end
 
@@ -23,7 +23,7 @@ module Fulfillment
 
       apply(Fulfillment::OrderRejected.new(data: {
         order_id: @order_id,
-        orer_lines: order_lines.to_hash
+        order_lines: order_lines.map { |order_line| order_line.to_hash }
       }))
     end
 

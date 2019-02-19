@@ -75,7 +75,7 @@ module Payments
       Payments::CreditCardPayment.new(payment_id).tap do |credit_card_payment|
         load_credit_card_payment(payment_id, credit_card_payment)
         yield credit_card_payment
-        store_course(credit_card_payment)
+        store_credit_card_payment(credit_card_payment)
       end
     end
 

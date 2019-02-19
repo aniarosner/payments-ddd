@@ -5,15 +5,15 @@ module Fulfillment
     end
 
     def initialized?
-      state == :initialized
+      @state == :initialized
     end
 
     def accepted?
-      state == :accepted
+      @state == :accepted
     end
 
     def rejeceted?
-      state == :rejeceted
+      @state == :rejeceted
     end
   end
 end

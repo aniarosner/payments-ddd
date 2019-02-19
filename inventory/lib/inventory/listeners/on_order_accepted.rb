@@ -7,7 +7,7 @@ module Inventory
     def call(event)
       parse_order_lines_from_event(event.data[:order_lines]).each do |order_line|
         @command_bus.call(
-          Inventory::DecreaseProductQuantity.new(product_id: order_line.product, quantity: order_line.quantity)
+          Inventory::DecreaseProductQuantity.new(product_id: order_line[:product_id], quantity: order_line[:quantity])
         )
       end
     end

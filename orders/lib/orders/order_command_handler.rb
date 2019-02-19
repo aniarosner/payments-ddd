@@ -10,7 +10,7 @@ module Orders
           order_lines = cmd.order_lines.each do |order_line|
             Orders::OrderLine.new(
               product_id: order_line[:product_id], sku: order_line[:sku], quantity: order_line[:quantity],
-              price: order_line[:price]
+              price: order_line[:price], currency: order_line[:currency]
             )
           end
           order.place(order_lines)
@@ -68,17 +68,17 @@ module Orders
 
     def with_order(order_id)
       Orders::Order.new(order_id).tap do |order|
-        load_credit_card_payment(order_id, order)
+        load_order(order_id, order)
         yield order
-        store_course(order)
+        store_order(order)
       end
     end
 
-    def load_credit_card_payment(order_id, order)
+    def load_order(order_id, order)
       order.load(stream_name(order_id), event_store: @event_store)
     end
 
-    def store_credit_card_payment(order)
+    def store_order(order)
       order.store(event_store: @event_store)
     end
 

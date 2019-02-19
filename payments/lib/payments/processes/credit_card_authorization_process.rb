@@ -1,10 +1,7 @@
 module Payments
   class CreditCardAuthorizationProcess
     class State
-      def initialize(event_store:, stream_name:)
-        @event_store = event_store
-        @stream_name = stream_name
-
+      def initialize
         @order_state        = :unknown
         @order_id           = nil
         @payment_state      = :unknown
@@ -47,8 +44,8 @@ module Payments
         order_cancelled? && credit_card_authorized?
       end
 
-      def load
-        event_store.read.stream(@stream_name).forward.each do |event|
+      def load(event_store:, stream_name:)
+        event_store.read.stream(stream_name).forward.each do |event|
           apply(event)
           @version += 1
         end
@@ -56,10 +53,10 @@ module Payments
         @event_ids_to_link = []
       end
 
-      def store
-        @event_store.link(
+      def store(event_store:, stream_name:)
+        event_store.link(
           @event_ids_to_link,
-          stream_name: @stream_name,
+          stream_name: stream_name,
           expected_version: @version
         )
 
@@ -93,8 +90,8 @@ module Payments
       state.apply(event)
       state.store(event_store: @event_store, stream_name: stream_name)
 
-      @command_bus.call(Payments::CaptureAuthorization.new(payment_id: State.payment_id)) if capture?
-      @command_bus.call(Payments::ReleaseAuthorization.new(payment_id: State.payment_id)) if release?
+      @command_bus.call(Payments::CaptureAuthorization.new(payment_id: State.payment_id)) if state.capture?
+      @command_bus.call(Payments::ReleaseAuthorization.new(payment_id: State.payment_id)) if state.release?
     end
 
     private

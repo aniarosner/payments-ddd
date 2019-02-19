@@ -4,7 +4,6 @@ module Inventory
       @product_id = product_id
       @sku        = sku
       @quantity   = quantity
-      @price      = price
     end
 
     def <=>(other)

@@ -1,10 +1,7 @@
 module Orders
   class OrderShippingProcess
     class State
-      def initialize(event_store:, stream_name:)
-        @event_store = event_store
-        @stream_name = stream_name
-
+      def initialize
         @order_state        = :unknown
         @order_id           = nil
         @payment_state      = :unknown
@@ -36,8 +33,8 @@ module Orders
         @event_ids_to_link << event.event_id
       end
 
-      def load
-        event_store.read.stream(@stream_name).forward.each do |event|
+      def load(event_store:, stream_name:)
+        event_store.read.stream(stream_name).forward.each do |event|
           apply(event)
           @version += 1
         end
@@ -45,10 +42,10 @@ module Orders
         @event_ids_to_link = []
       end
 
-      def store
-        @event_store.link(
+      def store(event_store:, stream_name:)
+        event_store.link(
           @event_ids_to_link,
-          stream_name: @stream_name,
+          stream_name: stream_name,
           expected_version: @version
         )
 
@@ -73,7 +70,7 @@ module Orders
       state.apply(event)
       state.store(event_store: @event_store, stream_name: stream_name)
 
-      @command_bus.call(Orders::ShipOrder.new(order_id: event.data[:order_id])) if ship?
+      @command_bus.call(Orders::ShipOrder.new(order_id: event.data[:order_id])) if state.ship?
     end
 
     private

@@ -5,47 +5,47 @@ module Orders
     end
 
     def initialized?
-      state == :initialized
+      @state == :initialized
     end
 
     def placed?
-      state == :placed
+      @state == :placed
     end
 
     def submitted?
-      state == :submitted
+      @state == :submitted
     end
 
     def shipped?
-      state == :shipped
+      @state == :shipped
     end
 
     def cancelled?
-      state == :cancelled
+      @state == :cancelled
     end
 
     def valid_for_place?
-      state.initialized?
+      initialized?
     end
 
     def valid_for_shipping_info_providing?
-      state.placed?
+      placed?
     end
 
     def valid_for_contact_info_providing?
-      state.placed?
+      placed?
     end
 
     def valid_for_submit?
-      state.placed?
+      placed?
     end
 
     def valid_for_shipping?
-      state.submitted?
+      submitted?
     end
 
     def valid_for_cancel?
-      state.placed? || state.submitted?
+      placed? || submitted?
     end
   end
 end

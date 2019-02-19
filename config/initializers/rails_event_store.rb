@@ -18,13 +18,13 @@ Rails.configuration.to_prepare do
     store.subscribe(Inventory::OnOrderAccepted, to: [Fulfillment::OrderAccepted])
 
     store.subscribe(
-      Orders::OrderShippingProcess, to:
+      Orders::OrderShippingProcess.new(event_store: store, command_bus: Rails.configuration.command_bus), to:
       [Orders::OrderSubmitted, Orders::OrderShipped, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
        Fulfillment::OrderAccepted, Fulfillment::OrderRejected, Orders::OrderCancelled]
     )
 
     store.subscribe(
-      Payments::CreditCardAuthorizationProcess, to:
+      Payments::CreditCardAuthorizationProcess.new(event_store: store, command_bus: Rails.configuration.command_bus), to:
       [Orders::OrderSubmitted, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
        Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Orders::OrderShipped, Orders::OrderCancelled]
     )

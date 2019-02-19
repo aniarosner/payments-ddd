@@ -8,7 +8,7 @@ module Payments
       @payment_id       = payment_id
       @order_reference  = nil
       @transaction      = nil
-      @state            = :initialized
+      @state            = Payments::Payment.new(:initialized)
       @authorized       = nil
       @captured         = nil
       @charged          = nil

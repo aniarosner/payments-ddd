@@ -6,7 +6,7 @@ module Orders
 
     def initialize(order_id)
       @order_id       = order_id
-      @order_state    = Orders::OrderState.new(:initialized)
+      @state          = Orders::OrderState.new(:initialized)
       @order_lines    = []
       @shipping_info  = nil
       @contact_info   = nil
@@ -67,12 +67,12 @@ module Orders
       }))
     end
 
-    on Orders::OrderPlaced do |_event|
+    on Orders::OrderPlaced do |event|
       @state = Orders::OrderState.new(:placed)
       @order_lines = event.data[:order_lines].map do |order_line|
         Orders::OrderLine.new(
           product_id: order_line[:product_id], sku: order_line[:sku], quantity: order_line[:quantity],
-          price: order_line[:price]
+          price: order_line[:price], currency: order_line[:currency]
         )
       end
     end
