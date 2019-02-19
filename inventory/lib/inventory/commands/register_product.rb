@@ -1,5 +1,5 @@
 module Inventory
-  class RegiserProduct
+  class RegisterProduct
     include Command
     attr_accessor :product_id,
                   :sku,

@@ -1,4 +1,4 @@
-module Orders
+module Fulfillment
   class OrderState
     def initialize(state)
       @state = state

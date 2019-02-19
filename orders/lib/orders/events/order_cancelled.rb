@@ -1,5 +1,5 @@
 module Orders
-  class OrdedCancelled < RailsEventStore::Event
+  class OrderCancelled < RailsEventStore::Event
     SCHEMA = {
       order_id: String
     }.freeze

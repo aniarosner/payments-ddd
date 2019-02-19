@@ -20,10 +20,10 @@ RSpec.describe 'Maintaining inventory' do
   end
 
   def nice_stapler_product
-    {
+    OpenStruct.new(
       product_id: '8277d4c5-37d5-4ef8-bd82-4c476e3070d2',
       sku: 'MT166-0001',
       name: 'Nice stapler'
-    }
+    )
   end
 end

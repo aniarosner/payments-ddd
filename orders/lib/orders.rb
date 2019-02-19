@@ -8,7 +8,7 @@ require_dependency 'orders/commands/provide_shipping_info.rb'
 require_dependency 'orders/commands/ship_order.rb'
 require_dependency 'orders/commands/submit_order.rb'
 
-require_dependency 'orders/events/contanct_info_provided.rb'
+require_dependency 'orders/events/contact_info_provided.rb'
 require_dependency 'orders/events/order_cancelled.rb'
 require_dependency 'orders/events/order_placed.rb'
 require_dependency 'orders/events/order_shipped.rb'
