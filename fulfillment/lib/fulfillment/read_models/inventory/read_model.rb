@@ -5,7 +5,7 @@ module Fulfillment
     end
 
     def product_quantity(product_id)
-      Fulfillment::Inventory::Product.find_by(product_id: product_id).pluck(:quantity)
+      Fulfillment::Inventory::Product.find_by(product_id: product_id).quantity
     end
   end
 end

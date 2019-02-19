@@ -13,7 +13,7 @@ module Inventory
 
     private
 
-    def validate_quantity_format
+    def validate_quantity_format(quantity)
       raise Inventory::InvalidQuantityFormat.new unless quantity.is_a?(Integer)
     end
   end

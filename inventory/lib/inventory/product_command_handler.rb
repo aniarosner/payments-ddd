@@ -42,12 +42,11 @@ module Inventory
     def increase_product_quantity(cmd)
       product = Inventory::Product.find(cmd.product_id)
       product.increase_quantity(cmd.quantity)
-
       @event_store.publish(
         Inventory::ProductQuantitySet.new(data: {
           product_id: cmd.product_id,
           sku: product.sku,
-          quantity: product.quantity
+          quantity: product.reload.quantity
         }),
         stream_name: stream_name(cmd.product_id)
       )
@@ -61,7 +60,7 @@ module Inventory
         Inventory::ProductQuantitySet.new(data: {
           product_id: cmd.product_id,
           sku: product.sku,
-          quantity: product.quantity
+          quantity: product.reload.quantity
         }),
         stream_name: stream_name(cmd.product_id)
       )
