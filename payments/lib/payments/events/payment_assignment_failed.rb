@@ -1,5 +1,5 @@
 module Payments
-  class PaymentAssignedFailed < RailsEventStore::Event
+  class PaymentAssignmentFailed < RailsEventStore::Event
     SCHEMA = {
       payment_id: String,
       order_id: String

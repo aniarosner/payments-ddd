@@ -1,6 +1,6 @@
 module UI
   module Ledger
-    class OnPaymentSucceded
+    class OnPaymentRefunded
       def call(event)
         UI::Ledger::Operation.create!(
           payment_id: event.data[:payment_id],

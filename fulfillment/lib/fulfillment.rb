@@ -4,7 +4,7 @@ end
 require_dependency 'fulfillment/commands/accept_order.rb'
 require_dependency 'fulfillment/commands/reject_order.rb'
 
-require_dependency 'fulfillment/domain_services/check_product_availability.rb'
+require_dependency 'fulfillment/domain_services/check_products_availability.rb'
 
 require_dependency 'fulfillment/events/order_accepted.rb'
 require_dependency 'fulfillment/events/order_rejected.rb'

@@ -2,7 +2,7 @@ module Payments
   PaymentGatewayError = Class.new(StandardError)
 end
 require_dependency 'payments/commands/assign_payment_to_order.rb'
-require_dependency 'payments/commands/authorize_credit_catd.rb'
+require_dependency 'payments/commands/authorize_credit_card.rb'
 require_dependency 'payments/commands/capture_authorization.rb'
 require_dependency 'payments/commands/charge_credit_card.rb'
 require_dependency 'payments/commands/refund_payment.rb'

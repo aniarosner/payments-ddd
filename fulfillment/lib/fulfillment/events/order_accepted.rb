@@ -1,5 +1,5 @@
-module Orders
-  class OrdedAccepted < RailsEventStore::Event
+module Fulfillment
+  class OrderAccepted < RailsEventStore::Event
     SCHEMA = {
       order_id: String
     }.freeze
