@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe 'Payments commands' do
+RSpec.describe 'Capture credit card authorization' do
   it do
     # prepare inventory
     command_bus.call(
@@ -14,7 +14,7 @@ RSpec.describe 'Payments commands' do
     command_bus.call(
       Inventory::SetProductQuantity.new(
         product_id: nice_stapler.product_id,
-        quantity: 20
+        quantity: nice_stapler.quantity
       )
     )
 
@@ -110,7 +110,8 @@ RSpec.describe 'Payments commands' do
     OpenStruct.new(
       product_id: '8277d4c5-37d5-4ef8-bd82-4c476e3070d2',
       sku: 'MT166-0001',
-      name: 'Nice stapler'
+      name: 'Nice stapler',
+      quantity: 20
     )
   end
 

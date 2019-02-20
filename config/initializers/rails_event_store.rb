@@ -11,11 +11,11 @@ Rails.configuration.to_prepare do
   end
 
   Rails.configuration.event_store.tap do |store|
-    store.subscribe(Fulfillment::OnOrderSubmitted, to: [Orders::OrderSubmitted])
-    store.subscribe(Fulfillment::Inventory::OnProductQuantitySet, to: [Inventory::ProductQuantitySet])
-    store.subscribe(Fulfillment::Inventory::OnProductRegistered, to: [Inventory::ProductRegistered])
-
-    store.subscribe(Inventory::OnOrderAccepted, to: [Fulfillment::OrderAccepted])
+    store.subscribe(
+      Payments::CreditCardAuthorizationProcess.new(event_store: store, command_bus: Rails.configuration.command_bus), to:
+      [Orders::OrderSubmitted, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
+       Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Orders::OrderShipped, Orders::OrderCancelled]
+    )
 
     store.subscribe(
       Orders::OrderShippingProcess.new(event_store: store, command_bus: Rails.configuration.command_bus), to:
@@ -23,10 +23,14 @@ Rails.configuration.to_prepare do
        Fulfillment::OrderAccepted, Fulfillment::OrderRejected, Orders::OrderCancelled]
     )
 
+    store.subscribe(Fulfillment::OnOrderSubmitted, to: [Orders::OrderSubmitted])
+    store.subscribe(Fulfillment::Inventory::OnProductQuantitySet, to: [Inventory::ProductQuantitySet])
+    store.subscribe(Fulfillment::Inventory::OnProductRegistered, to: [Inventory::ProductRegistered])
+
+    store.subscribe(Inventory::OnOrderAccepted, to: [Fulfillment::OrderAccepted])
+
     store.subscribe(
-      Payments::CreditCardAuthorizationProcess.new(event_store: store, command_bus: Rails.configuration.command_bus), to:
-      [Orders::OrderSubmitted, Payments::PaymentAssignedToOrder, Payments::CreditCardAuthorized,
-       Payments::AuthorizationCaptured, Payments::AuthorizationReleased, Orders::OrderShipped, Orders::OrderCancelled]
+      Orders::OnOrderRejected.new(command_bus: Rails.configuration.command_bus), to: [Fulfillment::OrderRejected]
     )
 
     store.subscribe(UI::Ledger::OnAuthorizationCaptured, to: [Payments::AuthorizationCaptured])

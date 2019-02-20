@@ -15,6 +15,8 @@ require_dependency 'orders/events/order_shipped.rb'
 require_dependency 'orders/events/order_submitted.rb'
 require_dependency 'orders/events/shipping_info_provided.rb'
 
+require_dependency 'orders/listeners/on_order_rejected.rb'
+
 require_dependency 'orders/processes/order_shipping_process.rb'
 
 require_dependency 'orders/value_objects/contact_info.rb'
