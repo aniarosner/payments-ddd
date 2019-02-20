@@ -1,5 +1,5 @@
 module Payments
-  class OrderReference
+  class Transaction
     include Comparable
 
     def initialize(transaction_id)

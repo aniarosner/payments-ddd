@@ -13,7 +13,7 @@ module Orders
     end
 
     def place(order_lines)
-      raise Orders::InvalidOperation unless @state.valid_for_place?
+      raise InvalidOperation unless @state.valid_for_place?
 
       apply(Orders::OrderPlaced.new(data: {
         order_id: @order_id,
@@ -22,7 +22,7 @@ module Orders
     end
 
     def provide_shipping_info(shipping_info:)
-      raise Orders::InvalidOperation unless @state.valid_for_shipping_info_providing?
+      raise InvalidOperation unless @state.valid_for_shipping_info_providing?
 
       apply(Orders::ShippingInfoProvided.new(data: {
         order_id: @order_id,
@@ -32,7 +32,7 @@ module Orders
     end
 
     def provide_contact_info(contact_info:)
-      raise Orders::InvalidOperation unless @state.valid_for_contact_info_providing?
+      raise InvalidOperation unless @state.valid_for_contact_info_providing?
 
       apply(Orders::ContactInfoProvided.new(data: {
         order_id: @order_id,
@@ -41,7 +41,7 @@ module Orders
     end
 
     def submit
-      raise Orders::InvalidOperation unless @state.valid_for_submit?
+      raise InvalidOperation unless @state.valid_for_submit?
       raise Orders::MissingShippingInfo unless @shipping_info.present?
       raise Orders::ContactInfo unless @contact_info.present?
 
@@ -52,7 +52,7 @@ module Orders
     end
 
     def ship
-      raise Orders::InvalidOperation unless @state.valid_for_shipping?
+      raise InvalidOperation unless @state.valid_for_shipping?
 
       apply(Orders::OrderShipped.new(data: {
         order_id: @order_id
@@ -60,7 +60,7 @@ module Orders
     end
 
     def cancel
-      raise Orders::InvalidOperation unless @state.valid_for_cancel?
+      raise InvalidOperation unless @state.valid_for_cancel?
 
       apply(Orders::OrderCancelled.new(data: {
         order_id: @order_id

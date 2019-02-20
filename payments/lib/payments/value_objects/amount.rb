@@ -19,6 +19,10 @@ module Payments
       "#{format('%.2f', value)} #{currency}"
     end
 
+    def currency_code
+      currency
+    end
+
     def +(other)
       raise ArgumentError if currency != other.currency
 

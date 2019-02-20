@@ -50,7 +50,7 @@ ActiveRecord::Schema.define(version: 2019_02_17_191524) do
 
   create_table "ui_ledger_operations", force: :cascade do |t|
     t.uuid "payment_id", null: false
-    t.integer "amount", null: false
+    t.integer "value", null: false
     t.string "currency", null: false
     t.string "transaction_identifier", null: false
     t.datetime "timestamp", null: false

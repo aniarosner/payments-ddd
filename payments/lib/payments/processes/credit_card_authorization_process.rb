@@ -90,8 +90,8 @@ module Payments
       state.apply(event)
       state.store(event_store: @event_store, stream_name: stream_name)
 
-      @command_bus.call(Payments::CaptureAuthorization.new(payment_id: State.payment_id)) if state.capture?
-      @command_bus.call(Payments::ReleaseAuthorization.new(payment_id: State.payment_id)) if state.release?
+      @command_bus.call(Payments::CaptureAuthorization.new(payment_id: state.payment_id)) if state.capture?
+      @command_bus.call(Payments::ReleaseAuthorization.new(payment_id: state.payment_id)) if state.release?
     end
 
     private

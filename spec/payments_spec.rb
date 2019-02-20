@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe 'Order commands' do
+RSpec.describe 'Payments commands' do
   it do
     # prepare inventory
     command_bus.call(
@@ -18,7 +18,7 @@ RSpec.describe 'Order commands' do
       )
     )
 
-    # test order
+    # prepare order
     command_bus.call(
       Orders::PlaceOrder.new(
         order_id: order.id,
@@ -47,10 +47,24 @@ RSpec.describe 'Order commands' do
       )
     )
 
-    expect(event_store).to have_published(an_event(Fulfillment::OrderAccepted))
-    expect(event_store).to have_published(an_event(Inventory::ProductQuantitySet)).exactly(2).times
+    # test payments
+    command_bus.call(
+      Payments::AssignPaymentToOrder.new(
+        order_id: order.id,
+        payment_id: payment.id
+      )
+    )
 
-    expect(Fulfillment::InventoryReadModel.new.product_quantity(nice_stapler.product_id)).to eq(0)
+    command_bus.call(
+      Payments::AuthorizeCreditCard.new(
+        payment_id: payment.id,
+        credit_card_token: credit_card_token,
+        amount: order_cost.amount,
+        currency: order_cost.currency
+      )
+    )
+
+    expect(event_store).to have_published(an_event(Payments::AuthorizationCaptured))
   end
 
   def command_bus
@@ -70,6 +84,17 @@ RSpec.describe 'Order commands' do
     )
   end
 
+  def order_cost
+    OpenStruct.new(
+      amount: 20_00,
+      currency: 'USD'
+    )
+  end
+
+  def credit_card_token
+    '82f3c124-b6a5-4256-8713-3dd8378c333f'
+  end
+
   def contact_phone_number
     '321-322-6227'
   end
@@ -86,6 +111,12 @@ RSpec.describe 'Order commands' do
       product_id: '8277d4c5-37d5-4ef8-bd82-4c476e3070d2',
       sku: 'MT166-0001',
       name: 'Nice stapler'
+    )
+  end
+
+  def payment
+    OpenStruct.new(
+      id: '72ccaa10-2bed-4616-ab1e-cd75aed6cc72'
     )
   end
 end
